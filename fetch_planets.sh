@@ -5,9 +5,13 @@
 
 # CONFIGURATION: Set date for testing (leave empty for current date)
 # Format: YYYY-MM-DD (e.g., "2026-06-15")
-TEST_DATE="2027-01-23"  # New Year 2027
+TEST_DATE=""
 
 echo "Calculating planetary positions using skyfield..."
+
+# Set the environment variable BEFORE calling python
+export SKYFIELD_DATA_DIR="$HOME/Library/Caches/skyfield"
+mkdir -p "$SKYFIELD_DATA_DIR"
 
 python3 << EOF
 import json
@@ -16,6 +20,10 @@ from datetime import datetime
 
 try:
     from skyfield.api import load
+    
+    # Explicitly set the load directory
+    load.directory = os.path.expanduser("~/Library/Caches/skyfield")
+    
 except ImportError:
     print("ERROR: skyfield not installed")
     print("Install with: pip3 install skyfield")
@@ -23,6 +31,7 @@ except ImportError:
 
 # Load ephemeris data
 print("Loading ephemeris data...")
+print(f"Using cache directory: {load.directory}")
 ts = load.timescale()
 eph = load('de421.bsp')
 
